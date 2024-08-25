@@ -1,5 +1,5 @@
-
-// const fs = require('fs').promises;
+console.log("eleventy.config.js is being loaded");
+const glob = require('glob');
 const path = require('path');
 const { DateTime } = require("luxon");
 const markdownItAnchor = require("markdown-it-anchor");
@@ -93,6 +93,9 @@ module.exports = function (eleventyConfig) {
 		);
 	});
 
+	// Add json filter
+  eleventyConfig.addFilter('json', JSON.stringify);
+
 	// Customize Markdown library settings:
 	eleventyConfig.amendLibrary("md", (mdLib) => {
 		mdLib.use(markdownItAnchor, {
@@ -131,18 +134,24 @@ module.exports = function (eleventyConfig) {
     ]);
   });
 
-	eleventyConfig.addGlobalData("imageData", function() {
-		return function() {
-			if (!this.collections || !this.collections.images) {
-				console.warn("Images collection not available");
-				return [];
-			}
-			return this.collections.images.map(image => ({
-				url: `/img/${path.basename(image.inputPath)}`,
-				alt: image.data.alt || ''
-			}));
-		};
+  // Add imageData function
+	eleventyConfig.addGlobalData('imageData', function() {
+		console.log("imageData global function created");
+		const images = glob.sync('./public/img/**/*.{jpg,jpeg,png,gif}', {
+			ignore: ['./public/img/thumbs/**', './public/img/original/**']
+		});
+	
+		const mappedImages = images.map(img => ({
+			url: '/' + path.relative('./public', img),
+			alt: path.basename(img, path.extname(img))
+		}));
+	
+		console.log("Number of images found:", mappedImages.length);
+		console.log("First image:", mappedImages[0]);
+	
+		return mappedImages;
 	});
+	
 	
 
 
