@@ -1,0 +1,12 @@
+<div id="image-gallery">
+  {% for image in imageData()() | slice(0, 12) %}
+    <img src="{{ image.url }}" alt="{{ image.alt }}">
+  {% endfor %}
+</div>
+<button id="load-more">Load More</button>
+
+<script>
+  // Embed the full image data in a script tag
+  window.allImages = {{ imageData()() | dump | safe }};
+</script>
+<script src="/js/infinite-scroll.js"></script>

@@ -1,0 +1,17 @@
+---
+permalink: /api/images.json
+---
+{
+  {% for image in gallery.images %}
+  {
+    "filename": "{{ image.filename }}"
+  }{% if not loop.last %},{% endif %}
+  {% endfor %}
+}
+
+// Alt version
+
+---
+permalink: /api/images.json
+---
+{{ imageData | dump | safe }}
