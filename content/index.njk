@@ -1,12 +1,12 @@
-<div id="image-gallery">
-  {% for image in imageData | slice(0, 12) %}
-    <img src="{{ image.url }}">
+<div id="image-container">
+  {% for image in collections.images | slice(0, 12) %}
+    <img src="{{ image.url }}" alt="{{ image.data.alt }}">
   {% endfor %}
 </div>
-<button id="load-more">Load More</button>
+<div id="loading" style="display: none;">Loading...</div>
 
 <script>
-  // Embed the full image data in a script tag
-  window.allImages = {{ imageData | json | safe }};
+  // Embed the total number of images in a script tag
+  window.totalImages = {{ collections.images | length }};
 </script>
 <script src="/js/infinite-scroll.js"></script>

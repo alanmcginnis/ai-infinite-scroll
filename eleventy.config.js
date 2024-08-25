@@ -1,6 +1,6 @@
 console.log("eleventy.config.js is being loaded");
-const glob = require('glob');
-const path = require('path');
+// const glob = require('glob');
+// const path = require('path');
 const { DateTime } = require("luxon");
 const markdownItAnchor = require("markdown-it-anchor");
 const markdownIt = require("markdown-it");
@@ -10,9 +10,9 @@ const pluginRss = require("@11ty/eleventy-plugin-rss");
 const pluginSyntaxHighlight = require("@11ty/eleventy-plugin-syntaxhighlight");
 const pluginBundle = require("@11ty/eleventy-plugin-bundle");
 const pluginNavigation = require("@11ty/eleventy-navigation");
-const { EleventyHtmlBasePlugin, EleventyServerlessBundlerPlugin } = require("@11ty/eleventy");
+const { EleventyHtmlBasePlugin } = require("@11ty/eleventy");
 
-
+const ImageData = require("./_data/image-data.11ty.js");
 const pluginDrafts = require("./eleventy.config.drafts.js");
 const pluginImages = require("./eleventy.config.images.js");
 
@@ -34,6 +34,11 @@ module.exports = function (eleventyConfig) {
 	// App plugins
 	eleventyConfig.addPlugin(pluginDrafts);
 	eleventyConfig.addPlugin(pluginImages);
+
+	// Custom
+
+	// Instantiate the ImageData class
+  const imageData = new ImageData();
 
 	const md = new markdownIt({
 		html: true,
@@ -126,34 +131,11 @@ module.exports = function (eleventyConfig) {
 	
 	// Image Gallery Things
 
-	eleventyConfig.addCollection("images", function(collectionApi) {
-    return collectionApi.getFilteredByGlob([
-      "public/img/**/*.{jpg,png,gif}",
-      "!public/img/thumbs/**",
-			"!public/img/original/**"
-    ]);
-  });
+	// Add image collection using the imageData instance
+  eleventyConfig.addCollection("images", imageData.getImageCollection.bind(imageData));
 
-  // Add imageData function
-	eleventyConfig.addGlobalData('imageData', function() {
-		console.log("imageData global function created");
-		const images = glob.sync('./public/img/**/*.{jpg,jpeg,png,gif}', {
-			ignore: ['./public/img/thumbs/**', './public/img/original/**']
-		});
-	
-		const mappedImages = images.map(img => ({
-			url: '/' + path.relative('./public', img),
-			alt: path.basename(img, path.extname(img))
-		}));
-	
-		console.log("Number of images found:", mappedImages.length);
-		console.log("First image:", mappedImages[0]);
-	
-		return mappedImages;
-	});
-	
-	
-
+  // Add global data for images using the imageData instance
+  eleventyConfig.addGlobalData("imageData", imageData.getGlobalImageData.bind(imageData));
 
 	// Features to make your build faster (when you need them)
 

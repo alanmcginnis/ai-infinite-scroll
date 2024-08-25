@@ -1,25 +1,36 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const imageGallery = document.getElementById('image-gallery');
-  const loadMoreButton = document.getElementById('load-more');
-  let currentIndex = 12;
-  const imagesPerLoad = 12;
-
-  loadMoreButton.addEventListener('click', loadMoreImages);
+  const imageContainer = document.getElementById('image-container');
+  const loadingElement = document.getElementById('loading');
+  let currentPage = 1;
+  const imagesPerPage = 12;
+  let isLoading = false;
 
   function loadMoreImages() {
-    const nextImages = window.allImages.slice(currentIndex, currentIndex + imagesPerLoad);
-    nextImages.forEach(image => {
-      const img = document.createElement('img');
-      img.src = image.url;
-      img.alt = image.alt;
-      imageGallery.appendChild(img);
-    });
-
-    currentIndex += imagesPerLoad;
-
-    if (currentIndex >= window.allImages.length) {
-      loadMoreButton.style.display = 'none';
+    if (isLoading) return;
+    if (imageContainer.children.length >= window.totalImages) {
+      loadingElement.style.display = 'none';
+      return;
     }
+
+    isLoading = true;
+    loadingElement.style.display = 'block';
+
+    const start = imageContainer.children.length;
+    const end = start + imagesPerPage;
+
+    fetch(`/api/images.json?start=${start}&end=${end}`)
+      .then(response => response.json())
+      .then(images => {
+        images.forEach(image => {
+          const img = document.createElement('img');
+          img.src = image.url;
+          img.alt = image.alt;
+          imageContainer.appendChild(img);
+        });
+
+        isLoading = false;
+        loadingElement.style.display = 'none';
+      });
   }
 
   // Infinite scroll
